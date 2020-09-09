@@ -16,6 +16,7 @@ jobs:
     
     - name: deploy to vscode market
       run: |
+        npm i
         npm i -g vsce
         npm test
         vsce publish -p ${{ secrets.VSCE_TOKEN }}

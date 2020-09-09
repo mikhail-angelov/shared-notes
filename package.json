@@ -8,6 +8,10 @@
 		"name": "Mikhail Angelov",
 		"url": "https://github.com/mikhail-angelov"
 	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/mikhail-angelov/shared-notes"
+	},
 	"license": "MIT",
 	"engines": {
 		"vscode": "^1.48.0"
