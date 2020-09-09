@@ -1,0 +1,134 @@
+{
+	"name": "shared-notes",
+	"displayName": "sharedNotes",
+	"description": "shared notes",
+	"version": "1.0.0",
+	"publisher": "mangelov",
+	"author": {
+		"name": "Mikhail Angelov",
+		"url": "https://github.com/mikhail-angelov"
+	},
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.48.0"
+	},
+	"categories": ["Notebooks"],
+	"activationEvents": [
+		"onView:sharedNotes",
+		"onCommand:Notes.add",
+		"onCommand:Notes.refresh"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"configuration": {
+			"type": "object",
+			"title": "Configuration",
+			"properties": {
+				"SharedNotes.rootFolder": {
+					"type": "string",
+					"default": "",
+					"description": "Storage location for notes."
+				}
+			}
+		},
+		"commands": [
+			{
+				"command": "sharedNotes.open",
+				"title": "Open Notes"
+			},
+			{
+				"command": "sharedNotes.add",
+				"title": "New Note",
+				"icon": {
+					"light": "icons/light/add.svg",
+					"dark": "icons/dark/add.svg"
+				}
+			},
+			{
+				"command": "sharedNotes.refresh",
+				"title": "Refresh Notes",
+				"icon": {
+					"light": "icons/light/refresh.svg",
+					"dark": "icons/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "sharedNotes.edit",
+				"title": "Rename Note",
+				"icon": {
+					"light": "icons/light/edit.svg",
+					"dark": "icons/dark/edit.svg"
+				}
+			}
+		],
+		"keybindings": [
+			{
+				"command": "sharedNotes.add",
+				"key": "alt+n",
+				"mac": "alt+n"
+			}
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "sharedNotes.add",
+					"when": "view == sharedNotes",
+					"group": "navigation@1"
+				},
+				{
+					"command": "sharedNotes.refresh",
+					"when": "view == sharedNotes",
+					"group": "navigation@2"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "sharedNotes.edit",
+					"when": "view == sharedNotes",
+					"group": "inline@1"
+				}
+			]
+		},
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "sharedNotes",
+					"title": "Notes",
+					"icon": "icons/notes.svg"
+				}
+			]
+		},
+		"views": {
+			"sharedNotes": [
+				{
+					"id": "sharedNotes",
+					"name": "Notes"
+				}
+			]
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"lint": "eslint src --ext ts",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/glob": "^7.1.3",
+		"@types/mocha": "^8.0.0",
+		"@types/node": "^14.0.27",
+		"@types/rimraf": "^3.0.0",
+		"@types/vscode": "^1.48.0",
+		"@typescript-eslint/eslint-plugin": "^3.8.0",
+		"@typescript-eslint/parser": "^3.8.0",
+		"eslint": "^7.6.0",
+		"glob": "^7.1.6",
+		"mocha": "^8.0.1",
+		"rimraf": "^3.0.2",
+		"typescript": "^3.8.3",
+		"vscode-test": "^1.4.0"
+	},
+	"dependencies": {}
+}
