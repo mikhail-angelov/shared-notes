@@ -3,7 +3,7 @@
 	"displayName": "Shared Notes",
 	"description": "shared notes",
 	"version": "1.0.1",
-	"publisher": "ma",
+	"publisher": "mangelov",
 	"author": {
 		"name": "Mikhail Angelov",
 		"url": "https://github.com/mikhail-angelov"
@@ -18,8 +18,7 @@
 	},
 	"categories": [
 		"Notebooks",
-		"Notes",
-		"vscode"
+		"Other"
 	],
 	"activationEvents": [
 		"onView:sharedNotes",
