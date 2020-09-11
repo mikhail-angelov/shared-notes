@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
+import * as cp from "child_process";
 import { FileDataProvider } from "./fileDataProvider";
+import { quickOpen } from "./search";
 
 async function setupRootPath() {
   const choose = await vscode.window.showWarningMessage(
@@ -21,7 +23,7 @@ async function selectRootPath() {
 
   if (files && files[0]) {
     await vscode.workspace
-      .getConfiguration("SharedNotes")
+      .getConfiguration("sharedNotes")
       .update("rootFolder", files[0].fsPath, true);
 
     const choose = await vscode.window.showWarningMessage(
@@ -82,7 +84,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const rootFolder:
     | string
     | undefined = await vscode.workspace
-    .getConfiguration("SharedNotes")
+    .getConfiguration("sharedNotes")
     .get("rootFolder");
   if (!rootFolder) {
     return setupRootPath();
@@ -104,6 +106,12 @@ export async function activate(context: vscode.ExtensionContext) {
   );
   vscode.commands.registerCommand("sharedNotes.refresh", () =>
     fileDataProvider.refresh()
+  );
+  vscode.commands.registerCommand("sharedNotes.search", () =>
+    quickOpen(fileDataProvider.root)
+  );
+  vscode.commands.registerCommand("sharedNotes.launch", () =>
+    cp.exec(`open ${fileDataProvider.root}`)
   );
 }
 

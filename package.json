@@ -1,9 +1,9 @@
 {
 	"name": "shared-notes",
-	"displayName": "sharedNotes",
+	"displayName": "Shared Notes",
 	"description": "shared notes",
-	"version": "1.0.0",
-	"publisher": "mangelov",
+	"version": "1.0.1",
+	"publisher": "ma",
 	"author": {
 		"name": "Mikhail Angelov",
 		"url": "https://github.com/mikhail-angelov"
@@ -16,19 +16,25 @@
 	"engines": {
 		"vscode": "^1.48.0"
 	},
-	"categories": ["Notebooks"],
+	"categories": [
+		"Notebooks",
+		"Notes",
+		"vscode"
+	],
 	"activationEvents": [
 		"onView:sharedNotes",
 		"onCommand:Notes.add",
-		"onCommand:Notes.refresh"
+		"onCommand:Notes.refresh",
+		"onCommand:Notes.search"
 	],
+	"icon": "icon.png",
 	"main": "./out/extension.js",
 	"contributes": {
 		"configuration": {
 			"type": "object",
-			"title": "Configuration",
+			"title": "Shared Notice Configuration",
 			"properties": {
-				"SharedNotes.rootFolder": {
+				"sharedNotes.rootFolder": {
 					"type": "string",
 					"default": "",
 					"description": "Storage location for notes."
@@ -63,6 +69,22 @@
 					"light": "icons/light/edit.svg",
 					"dark": "icons/dark/edit.svg"
 				}
+			},
+			{
+				"command": "sharedNotes.search",
+				"title": "Search Note",
+				"icon": {
+					"light": "icons/light/search.svg",
+					"dark": "icons/dark/search.svg"
+				}
+			},
+			{
+				"command": "sharedNotes.launch",
+				"title": "Open root folder",
+				"icon": {
+					"light": "icons/light/launch.svg",
+					"dark": "icons/dark/launch.svg"
+				}
 			}
 		],
 		"keybindings": [
@@ -70,19 +92,34 @@
 				"command": "sharedNotes.add",
 				"key": "alt+n",
 				"mac": "alt+n"
+			},
+			{
+				"command": "sharedNotes.search",
+				"key": "alt+l",
+				"mac": "alt+l"
 			}
 		],
 		"menus": {
 			"view/title": [
 				{
-					"command": "sharedNotes.add",
+					"command": "sharedNotes.refresh",
 					"when": "view == sharedNotes",
 					"group": "navigation@1"
 				},
 				{
-					"command": "sharedNotes.refresh",
+					"command": "sharedNotes.search",
 					"when": "view == sharedNotes",
 					"group": "navigation@2"
+				},
+				{
+					"command": "sharedNotes.launch",
+					"when": "view == sharedNotes",
+					"group": "navigation@3"
+				},
+				{
+					"command": "sharedNotes.add",
+					"when": "view == sharedNotes",
+					"group": "navigation@4"
 				}
 			],
 			"view/item/context": [
@@ -117,12 +154,15 @@
 		"lint": "eslint src --ext ts",
 		"watch": "tsc -watch -p ./",
 		"pretest": "npm run compile && npm run lint",
-		"test": "node ./out/test/runTest.js"
+		"test": "mocha ./out/test/runTest.js",
+		"package": "vsce package"
 	},
 	"devDependencies": {
+		"@types/find": "^0.2.1",
 		"@types/glob": "^7.1.3",
 		"@types/mocha": "^8.0.0",
 		"@types/node": "^14.0.27",
+		"@types/q": "^1.5.4",
 		"@types/rimraf": "^3.0.0",
 		"@types/vscode": "^1.48.0",
 		"@typescript-eslint/eslint-plugin": "^3.8.0",
@@ -134,5 +174,8 @@
 		"typescript": "^3.8.3",
 		"vscode-test": "^1.4.0"
 	},
-	"dependencies": {}
+	"dependencies": {
+		"find": "^0.3.0",
+		"q": "^1.5.1"
+	}
 }
