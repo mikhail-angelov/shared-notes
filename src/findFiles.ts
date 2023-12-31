@@ -8,35 +8,41 @@ interface SearchPattern {
   term: string | RegExp;
   flags: string;
 }
-interface Result {
-  matches: string[];
-  count: number;
-  line: string[];
-}
-interface FileSearchResult {
+
+export interface Result {
   filename: string;
-  match: RegExpMatchArray|null;
-  lines: RegExpMatchArray|null;
+  match: string;
+  value: string;
+  line: number;
 }
 interface SearchParams {
-  regex: RegExp ;
+  regex: RegExp;
   lineRegEx: RegExp;
   filename: string;
 }
-function readFile(filename: string){
+function readFile(filename: string) {
   return Q.nfcall<string>(fs.readFile, filename, "utf-8");
 }
 
 function searchFile(data: SearchParams) {
-  return function (content: string): FileSearchResult {
-    var match = content.match(data.regex),
-      linesMatch = content.match(data.lineRegEx);
-
-    return {
-      filename: data.filename,
-      match: match,
-      lines: linesMatch,
-    };
+  return function (content: string): Result[] {
+    const match = content.match(data.regex);
+    const linesMatch = content.match(data.lineRegEx);
+    if (!match || match.length === 0 || !linesMatch) {
+      return [];
+    }
+    const lines = content.split(/\r?\n|\n|\r/);
+    const results = [];
+    for (let value of linesMatch) {
+      const line = lines.indexOf(value);
+      results.push({
+        filename: data.filename,
+        match: match[0],
+        value,
+        line,
+      });
+    }
+    return results;
   };
 }
 
@@ -86,16 +92,11 @@ function getMatchedFiles(pattern: string | SearchPattern, files: string[]) {
   return matchedFiles;
 }
 
-function getResults(content: any[]): { [key: string]: Result } {
-  var results: any = {};
-  for (var i = 0; i < content.length; i++) {
-    var fileMatch = content[i].value;
-    if (fileMatch && fileMatch.match !== null) {
-      results[fileMatch.filename] = {
-        matches: fileMatch.match,
-        count: fileMatch.match.length,
-        line: fileMatch.lines,
-      };
+function getResults(content: any): Result[] {
+  var results: Result[] = [];
+  for (let f of content) {
+    for (let r of f.value) {
+      results.push(r);
     }
   }
   return results;
@@ -110,7 +111,7 @@ export const findFile = function (
   find
     .file(getFileFilter(fileFilter), directory, function (files: string[]) {
       Q.allSettled(getMatchedFiles(pattern, files))
-        .then( (content: any[]) => {
+        .then((content: any[]) => {
           deferred.resolve(getResults(content));
         })
         .done();
@@ -121,22 +122,3 @@ export const findFile = function (
   return deferred.promise;
 };
 
-export const findFileSync = function (
-  pattern: string | SearchPattern,
-  directory: string,
-  fileFilter?: RegExp
-) {
-  var deferred = Q.defer();
-  var files;
-  try {
-    files = find.fileSync(getFileFilter(fileFilter), directory);
-    Q.allSettled(getMatchedFiles(pattern, files))
-      .then(function (content: any) {
-        deferred.resolve(getResults(content));
-      })
-      .done();
-  } catch (err) {
-    deferred.reject(err);
-  }
-  return deferred.promise;
-};

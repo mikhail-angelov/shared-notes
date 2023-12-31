@@ -2,7 +2,7 @@
 	"name": "shared-notes",
 	"displayName": "Shared Notes",
 	"description": "shared notes",
-	"version": "1.0.1",
+	"version": "1.1.1",
 	"publisher": "mangelov",
 	"author": {
 		"name": "Mikhail Angelov",
@@ -168,9 +168,10 @@
 		"@typescript-eslint/parser": "^3.8.0",
 		"eslint": "^7.6.0",
 		"glob": "^7.1.6",
-		"mocha": "^8.0.1",
+		"mocha": "^10.2.0",
 		"rimraf": "^3.0.2",
 		"typescript": "^3.8.3",
+		"vsce": "^2.15.0",
 		"vscode-test": "^1.4.0"
 	},
 	"dependencies": {

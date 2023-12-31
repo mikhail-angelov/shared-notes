@@ -3,12 +3,10 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import * as path from "path";
-import * as cp from "child_process";
-import { Uri, window, Disposable } from "vscode";
+import { Uri, window, Disposable, Position, Selection, Range } from "vscode";
 import { QuickPickItem } from "vscode";
 import { workspace } from "vscode";
-import { findFile } from "./findFiles";
+import { Result, findFile } from "./findFiles";
 
 /**
  * A file opener using window.createQuickPick().
@@ -17,34 +15,35 @@ import { findFile } from "./findFiles";
  * the user's input in the filter field.
  */
 export async function quickOpen(root: string) {
-  const uri = await pickFile(root);
+  const [uri, line] = await pickFile(root);
   if (uri) {
+    var cursor = new Position(line, 0);
     const document = await workspace.openTextDocument(uri);
-    await window.showTextDocument(document);
+    const editor = await window.showTextDocument(document);
+    editor.selections = [new Selection(cursor, cursor)];
+    editor.revealRange(new Range(cursor, cursor));
   }
 }
 
 class FileItem implements QuickPickItem {
   label: string;
   description: string;
-  detail: string;
 
-  constructor(public file: string, public lines: string[]) {
+  constructor(public file: string, public detail: string, public line: number) {
     this.label = file.split("/")[file.split("/").length - 1];
-    this.description = `(${lines.length})`;
-    this.detail = lines.join("<br/>");
+    this.description = `(${line + 1})`;
   }
 }
 
 class MessageItem implements QuickPickItem {
   alwaysShow = true;
-  constructor(public label: string) {}
+  constructor(public label: string) { }
 }
 
 async function pickFile(root: string) {
   const disposables: Disposable[] = [];
   try {
-    return await new Promise<Uri | undefined>((resolve, reject) => {
+    return await new Promise<[Uri | undefined, number]>((resolve, reject) => {
       const input = window.createQuickPick<FileItem | MessageItem>();
       input.placeholder = "Type to search notes";
       input.matchOnDescription = true;
@@ -61,26 +60,23 @@ async function pickFile(root: string) {
           input.busy = true;
 
           findFile({ term: value, flags: "ig" }, root).then((results: any) => {
-            const files = Object.keys(results);
-            input.items = files.map((file: any) => {
-              return new FileItem(file, results[file].line);
-            });
-            if (files.length === 0) {
+            if (!results || results.length === 0) {
               input.items = [new MessageItem("nothing found :(")];
+            } else {
+              input.items = results.map((data: Result) => new FileItem(data.filename, data.value, data.line));
             }
-
             input.busy = false;
           });
         }),
         input.onDidChangeSelection((items) => {
           const item = items[0];
           if (item instanceof FileItem) {
-            resolve(Uri.file(item.file));
+            resolve([Uri.file(item.file), item.line]);
             input.hide();
           }
         }),
         input.onDidHide(() => {
-          resolve(undefined);
+          resolve([undefined, 0]);
           input.dispose();
         })
       );
